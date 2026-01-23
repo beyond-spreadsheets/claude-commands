@@ -40,6 +40,17 @@ This command helps you triage issues in the beyond-spreadsheets/dkc_volunteer_po
 
 ### Portal Platform (Multi-Tenant SaaS) Commands
 
+#### `/pp` - Context Reminder & Quick Reference
+Show current session context and critical rules
+
+**Usage:** `/pp`
+
+**Use this when:**
+- Starting to work after a break
+- About to make a change and unsure of impact
+- Need a quick reminder of the rules
+- Session context seems lost
+
 #### `/pp-setup` - Setup Work Session
 Setup portal-platform and tenant repo for this work session
 
@@ -84,14 +95,22 @@ Create a new page for a specific tenant
 - Follows tenant's design system
 
 #### `/pp-component <name>` - Create Shared Component
-Create a reusable component that all tenants can use
+Create a GENERIC framework component (use sparingly!)
 
-**Usage:** `/pp-component HeroSection`
+**Usage:** `/pp-component LoadingSpinner`
 
 **What it does:**
 - Creates component at components/shared/<name>.tsx
-- Tenant-agnostic but tenant-aware (via props)
 - Reusable across all tenants
+
+**⚠️ ONLY USE FOR:**
+- Generic utilities (LoadingSpinner, Modal, Button)
+- Framework components (FormField, Card)
+
+**❌ DON'T USE FOR:**
+- Hero sections (make unique per tenant!)
+- Pricing tables (different per tenant!)
+- Content components (create in tenant pages instead!)
 
 #### `/pp-list` - List All Tenants
 Show all tenants in database

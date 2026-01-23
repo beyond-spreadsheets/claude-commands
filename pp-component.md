@@ -36,10 +36,20 @@ Changes go to: components/shared/{ComponentName}.tsx
 `/pp-component <ComponentName>`
 
 Examples:
-- `/pp-component HeroSection`
-- `/pp-component BookingWidget`
-- `/pp-component PricingCard`
-- `/pp-component DashboardMetric`
+- `/pp-component LoadingSpinner` (truly generic)
+- `/pp-component Modal` (framework component)
+- `/pp-component Button` (UI primitive)
+- `/pp-component FormField` (reusable input)
+
+❌ DON'T USE FOR:
+- Hero sections (each tenant should be unique!)
+- Pricing tables (each tenant has different pricing!)
+- Testimonials (different content per tenant!)
+- Navigation (each tenant has different structure!)
+
+For content components, create them inside tenant pages instead:
+- `/pp-page fitzone-gym home` (then add hero in that page)
+- `/pp-page beyond-spreadsheets pricing` (then add pricing table)
 
 ## What This Creates
 
