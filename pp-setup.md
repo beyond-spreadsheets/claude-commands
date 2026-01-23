@@ -230,10 +230,11 @@ echo "$PORTAL_FOLDER" > ~/.claude-portal-path
 echo "✅ Session configured"
 ```
 
-**Step 9: Summary**
+**Step 9: Determine next steps based on session type**
 
-Show the user:
+Based on what the user is working on, suggest relevant next steps:
 
+**If setting up NEW tenant/client:**
 ```
 ═══════════════════════════════════════════
    PORTAL PLATFORM - SESSION SETUP
@@ -252,10 +253,49 @@ Show the user:
 📝 Git initialized in tenant repo
    All changes will be tracked for audit trail
 
+Next steps for NEW tenant:
+1. Create tenant in database:
+   /pp-tenant "{Tenant Name}"
+
+2. Create pages for this tenant:
+   /pp-page {slug} home
+   /pp-page {slug} about
+   /pp-page {slug} contact
+
+3. Push tenant repo to GitHub:
+   cd ~/portal-work/tenants/{slug}
+   gh repo create beyond-spreadsheets/tenant-{slug} --private
+   git push -u origin main
+
+Session files:
+- ~/.claude-portal-session (full session config)
+- ~/.claude-portal-path (platform path)
+```
+
+**If working on EXISTING tenant (issues, features):**
+```
+═══════════════════════════════════════════
+   PORTAL PLATFORM - SESSION SETUP
+═══════════════════════════════════════════
+
+✅ Shared Platform: ~/portal-work/portal-platform
+✅ Tenant Repo: ~/portal-work/tenants/{slug}
+
+📝 Working on existing tenant: {Tenant Name}
+
 Next steps:
-- List tenants: /pp-list
-- Create tenant in DB: /pp-tenant "{Tenant Name}"
-- Create page: /pp-page {slug} {page-name}
+1. View tenant issues:
+   cd ~/portal-work/tenants/{slug}
+   gh issue list --repo beyond-spreadsheets/tenant-{slug}
+
+2. Work on specific issue:
+   /pp-issue {slug} {issue-number}
+
+3. Create new pages:
+   /pp-page {slug} {page-name}
+
+4. List all tenants:
+   /pp-list
 
 Session files:
 - ~/.claude-portal-session (full session config)

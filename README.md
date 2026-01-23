@@ -40,6 +40,18 @@ This command helps you triage issues in the beyond-spreadsheets/dkc_volunteer_po
 
 ### Portal Platform (Multi-Tenant SaaS) Commands
 
+#### `/pp-setup` - Setup Work Session
+Setup portal-platform and tenant repo for this work session
+
+**Usage:** `/pp-setup`
+
+**What it does:**
+- Asks what you're working on
+- Clones portal-platform (shared codebase)
+- Creates/updates tenant-specific Git repo
+- Initializes folder structure: migrations/, docs/, config/
+- Stores session info for other commands
+
 #### `/pp-help` - Portal Platform Help
 Show complete help guide for multi-tenant SaaS commands
 
@@ -56,6 +68,9 @@ Create a new tenant/client with database setup and folder structure
 - Creates folder: app/(tenants)/<slug>/
 - Enables feature flags
 - Creates admin role
+- **Saves migration to tenant Git repo**
+- **Generates documentation (decisions.md, features.md)**
+- **Creates tenant.json config**
 
 #### `/pp-page <slug> <page-name>` - Create Tenant Page
 Create a new page for a specific tenant
@@ -78,17 +93,29 @@ Create a reusable component that all tenants can use
 - Tenant-agnostic but tenant-aware (via props)
 - Reusable across all tenants
 
-#### `/pp-list` - List All Tenants & Pages
-Show complete overview of all tenants, pages, and components
+#### `/pp-list` - List All Tenants
+Show all tenants in database
 
 **Usage:** `/pp-list`
 
-**What it shows:**
-- All tenants in database
-- Each tenant's custom pages
-- Shared components
-- Feature flags per tenant
-- Platform statistics
+**What it does:**
+- Runs script from portal-platform
+- Shows all tenants with IDs, slugs, domains
+
+#### `/pp-issue <slug> <issue-number>` - Work on Tenant Issue
+Work on GitHub issue for a specific tenant with full workflow
+
+**Usage:** `/pp-issue fitzone 42`
+
+**What it does:**
+- Fetches issue from tenant's GitHub repo (beyond-spreadsheets/tenant-{slug})
+- Creates isolated work folder
+- Clones portal-platform and tenant repo
+- Guides through investigation and implementation
+- Saves migrations to tenant repo
+- Commits code changes to platform
+- Creates PRs for both repos
+- Updates issue with progress
 
 **See:** [PP-COMMANDS-README.md](PP-COMMANDS-README.md) for complete documentation
 
