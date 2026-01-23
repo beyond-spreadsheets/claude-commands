@@ -12,16 +12,28 @@ Simply runs the existing script to show all tenants from the database.
 
 ## Instructions
 
-**IF** the script `scripts/list-all-tenants.mjs` exists:
-- Run it: `node scripts/list-all-tenants.mjs`
-- Show the output to the user
-- Done!
+**Step 1: Check if Portal Platform is set up**
 
-**IF** the script doesn't exist:
-- Tell the user: "The list-all-tenants.mjs script doesn't exist yet. Create it with the Portal Platform setup first."
-- Suggest: "Or create tenants with: /pp-tenant \"Business Name\""
+```bash
+if [ -f ~/.claude-portal-path ]; then
+  PORTAL_PATH=$(cat ~/.claude-portal-path)
+  cd "$PORTAL_PATH"
+else
+  echo "❌ Portal Platform not set up for this session"
+  echo "Run: /pp-setup"
+  exit 1
+fi
+```
 
-That's it! No complex logic, no file searching, just run the script.
+**Step 2: Run the script**
+
+```bash
+node scripts/list-all-tenants.mjs
+```
+
+**Step 3: Done!**
+
+Show the output to the user. That's it!
 
 ## Expected Output
 
