@@ -9,6 +9,19 @@ autoApprove:
 
 You are creating a TENANT-SPECIFIC PAGE in the multi-tenant SaaS portal-platform.
 
+```
+═══════════════════════════════════════════
+   TENANT-SPECIFIC PAGE
+═══════════════════════════════════════════
+
+✅ This page will ONLY affect: {Tenant Name}
+✅ Other tenants: Will NOT be affected
+✅ Platform code: Will NOT be modified
+✅ Safe to create without impacting other clients
+
+Changes go to: app/(tenants)/{slug}/{page-name}/
+```
+
 ## Command Format
 
 `/pp-page <tenant-slug> <page-name>`
@@ -22,7 +35,11 @@ Examples:
 
 Creates a new page in: `app/(tenants)/<slug>/<page-name>/page.tsx`
 
-**Safety:** Only affects that tenant's folder. Cannot break other tenants.
+**Safety:**
+- ✅ Only affects that tenant's folder
+- ✅ Cannot break other tenants
+- ✅ Isolated in `app/(tenants)/{slug}/` directory
+- ✅ No platform code changes
 
 ## Step 1: Verify Tenant Exists
 

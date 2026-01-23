@@ -9,6 +9,28 @@ autoApprove:
 
 You are creating a SHARED COMPONENT that can be used by ALL tenants in the multi-tenant SaaS.
 
+```
+═══════════════════════════════════════════
+   ⚠️  PLATFORM COMPONENT - AFFECTS ALL TENANTS
+═══════════════════════════════════════════
+
+⚠️  This component will be available to: ALL TENANTS
+⚠️  Changes to this component will affect: ALL CLIENTS
+⚠️  Platform code: YES - in components/shared/
+
+Benefits:
+✅ Code reuse - write once, use everywhere
+✅ Consistency - all tenants can use same component
+✅ Maintenance - fix once, fixes for everyone
+
+Safety:
+✅ Component is tenant-aware via props
+✅ Won't mix tenant data
+✅ Each tenant can style differently via tenant.config
+
+Changes go to: components/shared/{ComponentName}.tsx
+```
+
 ## Command Format
 
 `/pp-component <ComponentName>`
@@ -23,9 +45,17 @@ Examples:
 
 Creates a reusable component in: `components/shared/<ComponentName>.tsx`
 
-**Purpose:** Share code across all tenants, avoid duplication
+**Purpose:** Share code across ALL tenants, avoid duplication
 
-**Safety:** Component is tenant-aware via props, won't mix tenant data
+**Impact:**
+- ⚠️  **Affects:** ALL tenants can use this component
+- ⚠️  **Changes:** Modifying this component affects all tenants using it
+- ✅  **Benefits:** Write once, use everywhere
+
+**Safety:**
+- Component is tenant-aware via props
+- Won't mix tenant data
+- Each tenant can customize via their config
 
 ## Step 1: Ask Questions
 

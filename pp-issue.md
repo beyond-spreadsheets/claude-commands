@@ -155,21 +155,126 @@ Use Glob, Grep, Read tools to explore.
 
 Update todo list: Mark "Investigate issue" as completed.
 
-## Step 9: Determine Change Type
+## Step 9: CRITICAL DECISION - Platform vs Tenant-Specific
 
-**If PLATFORM change (affects shared code):**
-- Work in: `portal-platform/` folder
-- Change: `lib/`, `components/shared/`, `app/api/`, etc.
-- Benefit: All tenants get this improvement!
+**⚠️  STOP AND THINK: This is the most important decision!**
+
+Ask the user explicitly:
+
+```
+═══════════════════════════════════════════
+   CRITICAL DECISION POINT
+═══════════════════════════════════════════
+
+This issue is for: {Tenant Name} ({slug})
+
+Question: Should this change affect ALL tenants or ONLY {Tenant Name}?
+
+Examples:
+
+ALL TENANTS (Platform Code):
+✅ Bug fix in auth system
+✅ New shared component everyone can use
+✅ Security patch
+✅ Email template improvement
+✅ Payment processing fix
+→ Changes go to: lib/, components/shared/, app/api/
+
+ONLY THIS TENANT (Tenant-Specific):
+✅ Custom page for this client
+✅ Brand-specific styling
+✅ Unique business logic for this client
+✅ Custom navigation for this tenant
+→ Changes go to: app/(tenants)/{slug}/
+
+DATABASE CHANGES:
+✅ Tenant-specific data (bookings, users, etc.)
+→ Migration goes to: tenant repo only
+✅ Platform schema changes (all tenants)
+→ Migration goes to: platform repo (requires careful review!)
+
+Please choose:
+1. ALL TENANTS - Platform code change
+2. ONLY {Tenant Name} - Tenant-specific change
+3. DATABASE - Data migration
+
+>
+```
+
+**Based on answer, set variables:**
+
+```bash
+CHANGE_TYPE="" # "platform" or "tenant" or "database"
+AFFECTS_ALL_TENANTS=false # true if platform change
+NEEDS_PLATFORM_PR=false
+NEEDS_TENANT_PR=false
+```
+
+**If PLATFORM change (affects ALL tenants):**
+```
+⚠️  WARNING: PLATFORM CHANGE DETECTED
+
+This change will affect ALL {TOTAL_TENANT_COUNT} tenants:
+- {list first 5 tenant names}
+- ... and {remaining} others
+
+Changes to these folders affect everyone:
+- lib/ (shared utilities)
+- components/shared/ (shared components)
+- app/api/ (API routes)
+- middleware.ts (auth/routing)
+- Any file outside app/(tenants)/
+
+Are you SURE this should affect all tenants?
+>
+```
+
+Set:
+```bash
+CHANGE_TYPE="platform"
+AFFECTS_ALL_TENANTS=true
+NEEDS_PLATFORM_PR=true
+WORK_LOCATION="portal-platform/"
+```
 
 **If TENANT-SPECIFIC change:**
-- Work in: `portal-platform/app/(tenants)/{slug}/` folder
-- Change: Only this tenant's pages/components
-- Isolated: Won't affect other tenants
+```
+✅ TENANT-SPECIFIC CHANGE
+
+This change will ONLY affect: {Tenant Name}
+
+Work location: app/(tenants)/{slug}/
+Other tenants: Not affected
+Platform code: Not modified
+```
+
+Set:
+```bash
+CHANGE_TYPE="tenant"
+AFFECTS_ALL_TENANTS=false
+NEEDS_PLATFORM_PR=true # Still need to commit tenant folder to platform
+WORK_LOCATION="portal-platform/app/(tenants)/{slug}/"
+```
 
 **If DATABASE change:**
-- Create migration in tenant repo: `tenant-{slug}/migrations/`
-- Document in: `tenant-{slug}/docs/decisions.md`
+```
+📊 DATABASE CHANGE
+
+Migration location: tenant-{slug}/migrations/
+Affects: {Tenant Name} data only
+Platform schema: Not modified
+
+If this needs to change platform schema (affects all tenants),
+please reconsider and choose "ALL TENANTS" instead.
+```
+
+Set:
+```bash
+CHANGE_TYPE="database"
+AFFECTS_ALL_TENANTS=false
+NEEDS_TENANT_PR=true
+WORK_LOCATION="tenant-{slug}/migrations/"
+```
 
 ## Step 10: Implement Solution
 
@@ -244,20 +349,91 @@ echo "✅ Build and tests passed"
 
 Update todo list: Mark "Test locally" and "Run build and tests" as completed.
 
-## Step 13: Commit Platform Changes
+## Step 13: Commit Changes (Context-Aware)
+
+**Based on CHANGE_TYPE from Step 9:**
+
+### If PLATFORM change (AFFECTS_ALL_TENANTS=true):
 
 ```bash
 cd "$WORK_FOLDER/portal-platform"
 
+# Show affected files
+echo "⚠️  PLATFORM CHANGE - Will affect ALL tenants"
+echo ""
+echo "Files changed:"
+git diff --name-only
+
+# Confirm with user
+echo ""
+echo "These changes will be deployed to ALL {TOTAL_TENANT_COUNT} tenants."
+echo "Are you sure? (y/n)"
+read -r CONFIRM
+
+if [ "$CONFIRM" != "y" ]; then
+  echo "Aborting. Please review changes."
+  exit 1
+fi
+
 git add .
 
 git commit -m "$(cat <<'EOF'
-feat({slug}): {issue-title}
+feat(platform): {issue-title}
+
+⚠️  PLATFORM CHANGE - Affects ALL tenants
 
 {Detailed description of changes}
 
 Changes:
 - {list of specific changes}
+
+Impact: All {TOTAL_TENANT_COUNT} tenants will receive this change
+Origin: Requested by {Tenant Name} - beyond-spreadsheets/tenant-{slug}#{issue-number}
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+EOF
+)"
+
+git push -u origin "$BRANCH_NAME"
+
+echo "✅ Platform changes committed"
+echo "⚠️  Remember: This will affect ALL tenants when merged"
+```
+
+### If TENANT-SPECIFIC change (AFFECTS_ALL_TENANTS=false):
+
+```bash
+cd "$WORK_FOLDER/portal-platform"
+
+# Show affected files
+echo "✅ TENANT-SPECIFIC CHANGE - Only affects {Tenant Name}"
+echo ""
+echo "Files changed:"
+git diff --name-only app/(tenants)/{slug}/
+
+# Verify only tenant folder changed
+if git diff --name-only | grep -v "app/(tenants)/{slug}/" ; then
+  echo "⚠️  WARNING: Changes detected outside tenant folder!"
+  echo "This may affect other tenants. Please review."
+  exit 1
+fi
+
+git add app/(tenants)/{slug}/
+
+git commit -m "$(cat <<'EOF'
+feat({slug}): {issue-title}
+
+✅ TENANT-SPECIFIC - Only affects {Tenant Name}
+
+{Detailed description of changes}
+
+Changes:
+- {list of specific changes}
+
+Impact: Only {Tenant Name} affected
+Other tenants: No changes
 
 Fixes: beyond-spreadsheets/tenant-{slug}#{issue-number}
 
@@ -268,13 +444,112 @@ EOF
 )"
 
 git push -u origin "$BRANCH_NAME"
+
+echo "✅ Tenant-specific changes committed"
+echo "✅ Other tenants will not be affected"
 ```
 
-Update todo list: Mark "Commit to platform" as completed.
+### If DATABASE change only:
 
-## Step 14: Create Pull Requests
+```bash
+# No platform commit needed - only tenant repo migration
 
-**For tenant repo (if migrations/docs):**
+cd "$WORK_FOLDER/tenant-{slug}"
+
+git add migrations/
+
+git commit -m "$(cat <<'EOF'
+feat: Database migration for issue #{issue-number}
+
+{issue-title}
+
+Migration: migrations/{TIMESTAMP}_issue_{issue-number}.sql
+
+Changes:
+- {list of database changes}
+
+Impact: {Tenant Name} data only
+
+Fixes: #{issue-number}
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+EOF
+)"
+
+git push -u origin issue-{issue-number}-{short-description}
+
+echo "✅ Migration committed to tenant repo"
+echo "✅ No platform changes needed"
+```
+
+Update todo list: Mark "Commit to platform" or "Commit to tenant repo" as completed.
+
+## Step 14: Create Pull Requests (Context-Aware)
+
+**Based on CHANGE_TYPE:**
+
+### If PLATFORM change (affects ALL tenants):
+
+**Platform PR only:**
+```bash
+cd "$WORK_FOLDER/portal-platform"
+
+gh pr create --repo beyond-spreadsheets/portal-platform \
+  --title "feat(platform): {issue-title}" \
+  --base develop \
+  --body "$(cat <<'EOF'
+## Summary
+⚠️  **PLATFORM CHANGE - Affects ALL tenants**
+
+{Detailed summary}
+
+## Origin
+Requested by: {Tenant Name}
+Original issue: beyond-spreadsheets/tenant-{slug}#{issue-number}
+
+## Changes
+{List changes}
+
+## Impact Analysis
+- **Affected tenants**: ALL ({TOTAL_TENANT_COUNT} tenants)
+- **Risk level**: [Low/Medium/High]
+- **Backwards compatible**: [Yes/No]
+
+## Type of Change
+- [x] Platform improvement (benefits all tenants)
+- [ ] Bug fix
+- [ ] Security patch
+- [ ] Breaking change
+
+## Testing
+- [x] Build passed
+- [x] Tests passed
+- [ ] Tested with multiple tenants
+- [ ] Reviewed by platform team
+
+## Deployment Notes
+- Deploy during low-traffic window
+- Monitor all tenants after deployment
+- Rollback plan: [describe]
+
+## Related Issues
+- Origin: beyond-spreadsheets/tenant-{slug}#{issue-number}
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+⚠️  **REVIEW CAREFULLY - ALL TENANTS WILL BE AFFECTED**
+EOF
+)"
+
+echo ""
+echo "⚠️  PLATFORM PR CREATED"
+echo "This PR will affect ALL tenants when merged."
+echo "Ensure thorough review before merging!"
+```
+
+### If TENANT-SPECIFIC change:
+
+**Tenant repo PR (for docs):**
 ```bash
 cd "$WORK_FOLDER/tenant-{slug}"
 
@@ -282,16 +557,22 @@ gh pr create --repo beyond-spreadsheets/tenant-{slug} \
   --title "Issue #{issue-number}: {issue-title}" \
   --body "$(cat <<'EOF'
 ## Summary
+✅ TENANT-SPECIFIC CHANGE
+
 Resolves #{issue-number}
 
 {Brief summary of changes}
 
 ## Changes
-- Migration: `migrations/{timestamp}_issue_{issue-number}.sql`
 - Documentation updated in `docs/decisions.md`
+- Configuration: `config/tenant.json` (if changed)
+
+## Impact
+- Affects: {Tenant Name} only
+- Other tenants: No impact
 
 ## Testing
-- [ ] Migration tested locally
+- [ ] Tested locally
 - [ ] Documentation reviewed
 
 Fixes #{issue-number}
@@ -301,39 +582,108 @@ EOF
 )"
 ```
 
-**For platform repo:**
+**Platform PR (for code):**
 ```bash
 cd "$WORK_FOLDER/portal-platform"
 
 gh pr create --repo beyond-spreadsheets/portal-platform \
-  --title "{slug}: {issue-title}" \
+  --title "feat({slug}): {issue-title}" \
   --base develop \
   --body "$(cat <<'EOF'
 ## Summary
-Implementation for {Tenant Name} - issue beyond-spreadsheets/tenant-{slug}#{issue-number}
+✅ **TENANT-SPECIFIC - Only affects {Tenant Name}**
+
+Implementation for issue beyond-spreadsheets/tenant-{slug}#{issue-number}
 
 {Detailed summary}
 
 ## Changes
+All changes in: `app/(tenants)/{slug}/`
+
 {List changes}
 
+## Impact Analysis
+- **Affected tenants**: {Tenant Name} ONLY
+- **Other tenants**: No impact
+- **Files changed**: Only `app/(tenants)/{slug}/**`
+
 ## Type of Change
-- [ ] Platform improvement (benefits all tenants)
-- [ ] Tenant-specific feature (only {slug})
-- [ ] Bug fix
-- [ ] Database migration
+- [x] Tenant-specific feature
+- [ ] Bug fix (tenant-only)
+- [ ] New page/component (tenant-only)
 
 ## Testing
 - [x] Build passed
 - [x] Tests passed
 - [ ] Tested locally
+- [x] Verified no impact on other tenants
 
 ## Related Issues
 - Tenant issue: beyond-spreadsheets/tenant-{slug}#{issue-number}
+- Tenant repo PR: [link after creating above]
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+✅ **SAFE TO MERGE - Only affects {Tenant Name}**
+EOF
+)"
+
+echo ""
+echo "✅ TENANT-SPECIFIC PR CREATED"
+echo "This PR only affects {Tenant Name}."
+echo "Other tenants will not be impacted."
+```
+
+### If DATABASE change only:
+
+**Tenant repo PR only:**
+```bash
+cd "$WORK_FOLDER/tenant-{slug}"
+
+gh pr create --repo beyond-spreadsheets/tenant-{slug} \
+  --title "Database migration: {issue-title}" \
+  --body "$(cat <<'EOF'
+## Summary
+📊 DATABASE MIGRATION
+
+Resolves #{issue-number}
+
+{Brief summary of changes}
+
+## Changes
+- Migration: `migrations/{TIMESTAMP}_issue_{issue-number}.sql`
+- Documentation updated in `docs/decisions.md`
+
+## Migration Details
+```sql
+{Paste key SQL here}
+```
+
+## Rollback Plan
+```sql
+{Paste rollback SQL here}
+```
+
+## Testing
+- [ ] Migration tested locally
+- [ ] Backup created before migration
+- [ ] Rollback tested
+
+## Impact
+- Affects: {Tenant Name} data only
+- Platform code: No changes
+- Other tenants: No impact
+
+Fixes #{issue-number}
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 EOF
 )"
+
+echo ""
+echo "✅ DATABASE MIGRATION PR CREATED"
+echo "No platform changes needed."
+echo "This only affects {Tenant Name} data."
 ```
 
 Update todo list: Mark "Create PR" as completed.
