@@ -74,17 +74,23 @@ Run comprehensive diagnostics on portal platform setup
 - Want to validate everything is correct
 - Checking for security issues (missing filters)
 
-#### `/pp-setup` - Setup Work Session
-Setup portal-platform and tenant repo for this work session
+#### `/pp-setup <slug>` - Setup Work Session
+Setup portal-platform session for specific tenant (REQUIRED FIRST!)
 
-**Usage:** `/pp-setup`
+**Usage:** `/pp-setup <slug>`
+
+**Examples:**
+- `/pp-setup ayup` - Work on AYUP tenant
+- `/pp-setup bs` - Work on Beyond Spreadsheets
+- `/pp-setup platform` - Platform-wide changes (all tenants)
 
 **What it does:**
-- Asks what you're working on
-- Clones portal-platform (shared codebase)
-- Creates/updates tenant-specific Git repo
-- Initializes folder structure: migrations/, docs/, config/
-- Stores session info for other commands
+- Auto-detects portal-platform location
+- Creates/updates tenant Git repo automatically
+- Stores session (required for other /pp-* commands)
+- Zero interactive prompts - just works!
+
+**⚠️ Run this FIRST before any other `/pp-*` commands!**
 
 #### `/pp-help` - Portal Platform Help
 Show complete help guide for multi-tenant SaaS commands
@@ -98,10 +104,10 @@ Show complete help guide for multi-tenant SaaS commands
 - Provides workflow examples
 - Explains when to use each command
 
-#### `/pp-tenant "<name>"` - Create New Tenant
+#### `/pp-newtenant "<name>"` - Create New Tenant
 Create a new tenant/client with database setup and folder structure
 
-**Usage:** `/pp-tenant "FitZone Gym"`
+**Usage:** `/pp-newtenant "FitZone Gym"`
 
 **What it does:**
 - Creates tenant in database (portal.tenants)

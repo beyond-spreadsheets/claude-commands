@@ -1,379 +1,223 @@
 ---
-description: Setup Portal Platform for this work session
+description: Setup Portal Platform session for specific tenant
 autoApprove:
-  - Bash(git clone:*)
-  - Bash(git pull:*)
+  - Bash(git clone*)
+  - Bash(git pull*)
+  - Bash(pwd)
+  - Bash(ls*)
+  - Bash(test*)
+  - Bash(cat*)
+  - Bash(mkdir*)
+  - Bash(git init*)
+  - Bash(git add*)
+  - Bash(git commit*)
 ---
 
-Setup Portal Platform repository for this Claude Code work session.
+Setup Portal Platform work session for a specific tenant.
 
-## What This Does
+## Command Format
 
-Pulls the portal-platform repo to a unique folder for this work session, allowing you to:
-- Work on multiple clients simultaneously in different Claude sessions
-- Keep work isolated per session
-- Have all scripts and tools available
-
-## Instructions
-
-**Step 1: Determine work folder**
-
-Ask the user: "What are you working on today?"
+`/pp-setup <slug>`
 
 Examples:
-- "my own website" → folder: `~/portal-work/bs`
-- "FitZone Gym client" → folder: `~/portal-work/fitzone-gym`
-- "DKC volunteer portal" → folder: `~/portal-work/dkc`
-- "testing" → folder: `~/portal-work/test-{timestamp}`
+- `/pp-setup ayup` - Setup for AYUP tenant
+- `/pp-setup bs` - Setup for Beyond Spreadsheets
+- `/pp-setup drc` - Setup for Derby Rugby Club
 
-**Step 2: Clone portal-platform (shared codebase)**
+**Special case:**
+- `/pp-setup platform` - Setup for platform-wide changes (no specific tenant)
+
+## Step 1: Parse Argument
 
 ```bash
-PORTAL_FOLDER="~/portal-work/portal-platform"
+TENANT_SLUG="$1"
 
-# Clone or update the shared platform codebase
-if [ -d "$PORTAL_FOLDER" ]; then
-  echo "📂 Found existing portal-platform"
-  cd "$PORTAL_FOLDER"
-  git pull origin main
-  echo "✅ Updated to latest version"
-else
-  echo "📦 Cloning portal-platform"
-  git clone https://github.com/beyond-spreadsheets/portal-platform.git "$PORTAL_FOLDER"
-  cd "$PORTAL_FOLDER"
-  echo "✅ Portal Platform cloned"
+if [ -z "$TENANT_SLUG" ]; then
+  echo "❌ ERROR: Tenant slug required"
+  echo ""
+  echo "Usage: /pp-setup <slug>"
+  echo ""
+  echo "Examples:"
+  echo "  /pp-setup ayup      # Work on AYUP"
+  echo "  /pp-setup bs        # Work on Beyond Spreadsheets"
+  echo "  /pp-setup platform  # Platform-wide changes"
+  echo ""
+  exit 1
 fi
+
+echo "🚀 Setting up session for: $TENANT_SLUG"
+echo ""
 ```
 
-**Step 3: Create tenant-specific Git repo**
+## Step 2: Auto-detect portal-platform
 
 ```bash
-TENANT_REPO="~/portal-work/tenants/{slug-or-project-name}"
-
-# Create or update tenant repo
-if [ -d "$TENANT_REPO" ]; then
-  echo "📂 Found existing tenant repo: $TENANT_REPO"
-  cd "$TENANT_REPO"
-  git pull origin main 2>/dev/null || echo "   (Local repo only)"
+# Auto-detect portal-platform location
+if [ -f "$(pwd)/package.json" ] && grep -q "portal-platform" "$(pwd)/package.json"; then
+  PORTAL_PLATFORM="$(pwd)"
+  echo "✅ Using portal-platform at: $PORTAL_PLATFORM"
+elif [ -d "$HOME/Desktop/portal-platform" ]; then
+  PORTAL_PLATFORM="$HOME/Desktop/portal-platform"
+  echo "✅ Found portal-platform at: $PORTAL_PLATFORM"
+elif [ -d "$HOME/portal-work/portal-platform" ]; then
+  PORTAL_PLATFORM="$HOME/portal-work/portal-platform"
+  echo "✅ Found portal-platform at: $PORTAL_PLATFORM"
 else
-  echo "📦 Creating tenant repo: $TENANT_REPO"
-  mkdir -p "$TENANT_REPO"
-  cd "$TENANT_REPO"
+  # Clone to standard location
+  PORTAL_PLATFORM="$HOME/portal-work/portal-platform"
+  echo "📦 Cloning portal-platform..."
+  mkdir -p "$HOME/portal-work"
+  git clone https://github.com/beyond-spreadsheets/portal-platform.git "$PORTAL_PLATFORM"
+  echo "✅ Cloned to: $PORTAL_PLATFORM"
+fi
 
-  # Initialize Git repo
-  git init
+echo ""
+```
 
-  # Create folder structure
-  mkdir -p migrations
-  mkdir -p docs
-  mkdir -p config
-  mkdir -p backups
+## Step 3: Setup tenant repository
 
-  # Create README
-  cat > README.md << 'EOF'
-# {Tenant Name} - Configuration Repository
+```bash
+if [ "$TENANT_SLUG" = "platform" ]; then
+  # Platform-wide work, no tenant repo needed
+  TENANT_REPO=""
+  echo "✅ Platform-wide session (no tenant repo)"
+else
+  # Setup tenant-specific repo
+  TENANT_REPO="$HOME/portal-work/tenants/$TENANT_SLUG"
+  
+  if [ -d "$TENANT_REPO" ]; then
+    echo "✅ Tenant repo exists: $TENANT_REPO"
+    cd "$TENANT_REPO"
+    
+    # Try to pull latest
+    if [ -d ".git" ]; then
+      git pull origin main 2>/dev/null && echo "   Updated from GitHub" || echo "   (Local only)"
+    fi
+  else
+    echo "📦 Creating tenant repo: $TENANT_REPO"
+    mkdir -p "$TENANT_REPO"
+    cd "$TENANT_REPO"
+    
+    git init
+    mkdir -p migrations docs config backups
+    
+    # Create README
+    cat > README.md << EOFREADME
+# Tenant: $TENANT_SLUG
 
-This repository contains all tenant-specific configuration, migrations, and documentation.
+Configuration repository for this tenant.
 
 ## Structure
+- \`migrations/\` - Database migrations
+- \`docs/\` - Decision logs and documentation
+- \`config/\` - Tenant configuration (tenant.json)
+- \`backups/\` - Database backups (not in git)
 
-- `migrations/` - Database migration files
-- `docs/` - Decision logs and documentation
-- `config/` - Tenant-specific configuration
-- `backups/` - Database backups and exports
+## Usage
+- Migrations saved here by \`/pp-newtenant\` and \`/pp-issue\`
+- Documentation auto-generated
+- Config tracked for audit trail
+EOFREADME
 
-## Files
-
-- `tenant.json` - Core tenant configuration
-- `migrations/*.sql` - Database migrations (timestamped)
-- `docs/decisions.md` - Architecture decision records
-- `docs/features.md` - Enabled features and configuration
-
-## Git History
-
-This repo tracks all changes to tenant configuration over time.
-Each migration, config change, and decision is committed for full audit trail.
-EOF
-
-  # Create .gitignore
-  cat > .gitignore << 'EOF'
-# Environment secrets
+    # Create .gitignore
+    cat > .gitignore << EOFGITIGNORE
 .env.local
 *.key
 *.pem
-
-# Backups (too large for git)
 backups/*.sql
 backups/*.dump
-
-# Temporary files
 *.tmp
 .DS_Store
-EOF
+EOFGITIGNORE
 
-  # Initial commit
-  git add .
-  git commit -m "feat: Initialize tenant configuration repo"
-
-  echo "✅ Tenant repo created"
+    git add .
+    git commit -m "feat: Initialize tenant repo for $TENANT_SLUG"
+    
+    echo "✅ Tenant repo created"
+  fi
 fi
+
+echo ""
 ```
 
-**Step 4: Create tenant.json configuration file**
+## Step 4: Save session
 
 ```bash
-cd "$TENANT_REPO"
-
-if [ ! -f "config/tenant.json" ]; then
-  cat > config/tenant.json << 'EOF'
-{
-  "name": "{Tenant Name}",
-  "slug": "{slug}",
-  "created_at": "{timestamp}",
-  "platform_path": "~/portal-work/portal-platform",
-  "database": {
-    "schema": "portal",
-    "tenant_table": "portal.tenants"
-  },
-  "features": [],
-  "domains": {
-    "subdomain": null,
-    "custom_domain": null
-  },
-  "branding": {
-    "primary_color": "#0891b2",
-    "secondary_color": "#06b6d4",
-    "logo_url": null
-  }
-}
-EOF
-  git add config/tenant.json
-  git commit -m "feat: Add tenant configuration"
-fi
-```
-
-**Step 5: Create initial documentation**
-
-```bash
-if [ ! -f "docs/decisions.md" ]; then
-  cat > docs/decisions.md << 'EOF'
-# Architecture Decision Records
-
-## Decision Log
-
-### {Date} - Initial Setup
-- Created tenant configuration repository
-- Chose portal-platform as shared codebase
-- Tenant slug: {slug}
-
-EOF
-  git add docs/decisions.md
-  git commit -m "docs: Add decision log"
-fi
-
-if [ ! -f "docs/features.md" ]; then
-  cat > docs/features.md << 'EOF'
-# Feature Configuration
-
-## Enabled Features
-
-_(Will be populated as features are enabled)_
-
-## Feature History
-
-EOF
-  git add docs/features.md
-  git commit -m "docs: Add feature tracking"
-fi
-```
-
-**Step 6: Install dependencies in portal-platform**
-
-```bash
-cd "$PORTAL_FOLDER"
-
-if [ ! -d "node_modules" ]; then
-  echo "📦 Installing dependencies..."
-  npm install
-fi
-```
-
-**Step 7: Check environment**
-
-```bash
-cd "$PORTAL_FOLDER"
-
-if [ ! -f ".env.local" ]; then
-  echo "⚠️  No .env.local found in portal-platform"
-  echo "📋 Copy from .env.example:"
-  echo "   cp .env.example .env.local"
-  echo "   Then add your Supabase credentials"
-else
-  echo "✅ Environment configured"
-fi
-```
-
-**Step 8: Store the paths**
-
-Create session file with both paths:
-
-```bash
-cat > ~/.claude-portal-session << EOF
-PORTAL_PLATFORM=$PORTAL_FOLDER
+# Save session configuration
+cat > ~/.claude-portal-session << EOFSESSION
+PORTAL_PLATFORM=$PORTAL_PLATFORM
 TENANT_REPO=$TENANT_REPO
-TENANT_SLUG={slug}
-EOF
+TENANT_SLUG=$TENANT_SLUG
+EOFSESSION
 
-# For backwards compatibility
-echo "$PORTAL_FOLDER" > ~/.claude-portal-path
+# Backwards compatibility
+echo "$PORTAL_PLATFORM" > ~/.claude-portal-path
 
-echo "✅ Session configured"
+echo "═══════════════════════════════════════════"
+echo "   SESSION CONFIGURED"
+echo "═══════════════════════════════════════════"
+echo ""
+echo "✅ Portal Platform: $PORTAL_PLATFORM"
+if [ -n "$TENANT_REPO" ]; then
+  echo "✅ Tenant: $TENANT_SLUG"
+  echo "✅ Tenant Repo: $TENANT_REPO"
+else
+  echo "✅ Mode: Platform-wide changes"
+fi
+echo ""
+echo "Session saved to: ~/.claude-portal-session"
+echo ""
 ```
 
-**Step 9: Determine next steps based on session type**
-
-Based on what the user is working on, suggest relevant next steps:
-
-**If setting up NEW tenant/client:**
-```
-═══════════════════════════════════════════
-   PORTAL PLATFORM - SESSION SETUP
-═══════════════════════════════════════════
-
-✅ Shared Platform: ~/portal-work/portal-platform
-✅ Tenant Repo: ~/portal-work/tenants/{slug}
-
-📁 Tenant Repository Structure:
-   ~/portal-work/tenants/{slug}/
-   ├── migrations/        # Database migrations
-   ├── docs/             # Decisions & features
-   ├── config/           # tenant.json
-   └── backups/          # Database backups
-
-📝 Git initialized in tenant repo
-   All changes will be tracked for audit trail
-
-Next steps for NEW tenant:
-1. Create tenant in database:
-   /pp-tenant "{Tenant Name}"
-
-2. Create pages for this tenant:
-   /pp-page {slug} home
-   /pp-page {slug} about
-   /pp-page {slug} contact
-
-3. Push tenant repo to GitHub:
-   cd ~/portal-work/tenants/{slug}
-   gh repo create beyond-spreadsheets/tenant-{slug} --private
-   git push -u origin main
-
-Session files:
-- ~/.claude-portal-session (full session config)
-- ~/.claude-portal-path (platform path)
-```
-
-**If working on EXISTING tenant (issues, features):**
-```
-═══════════════════════════════════════════
-   PORTAL PLATFORM - SESSION SETUP
-═══════════════════════════════════════════
-
-✅ Shared Platform: ~/portal-work/portal-platform
-✅ Tenant Repo: ~/portal-work/tenants/{slug}
-
-📝 Working on existing tenant: {Tenant Name}
-
-Next steps:
-1. View tenant issues:
-   cd ~/portal-work/tenants/{slug}
-   gh issue list --repo beyond-spreadsheets/tenant-{slug}
-
-2. Work on specific issue:
-   /pp-issue {slug} {issue-number}
-
-3. Create new pages:
-   /pp-page {slug} {page-name}
-
-4. List all tenants:
-   /pp-list
-
-Session files:
-- ~/.claude-portal-session (full session config)
-- ~/.claude-portal-path (platform path)
-```
-
-## How Other Commands Use This
-
-All other PP commands should check for the portal path:
+## Step 5: Show next steps
 
 ```bash
-# In pp-list, pp-tenant, pp-page, etc:
-if [ -f ~/.claude-portal-path ]; then
-  PORTAL_PATH=$(cat ~/.claude-portal-path)
-  cd "$PORTAL_PATH"
-  # Now run scripts, create files, etc.
+if [ "$TENANT_SLUG" = "platform" ]; then
+  # Platform-wide work
+  echo "Platform-Wide Session"
+  echo "━━━━━━━━━━━━━━━━━━━━"
+  echo ""
+  echo "Changes will affect ALL tenants."
+  echo ""
+  echo "Next steps:"
+  echo "  /pp-component <name>    # Create shared component"
+  echo "  /pp-list                # List all tenants"
+  echo ""
 else
-  echo "❌ Portal Platform not set up"
-  echo "Run: /pp-setup"
-  exit 1
+  # Tenant-specific work
+  echo "Next Steps for $TENANT_SLUG"
+  echo "━━━━━━━━━━━━━━━━━━━━━━━━━━"
+  echo ""
+  
+  # Check if tenant exists in database
+  echo "Suggested commands:"
+  echo ""
+  echo "  /pp-issue $TENANT_SLUG <num>  # Work on GitHub issue"
+  echo "  /pp-page $TENANT_SLUG <page>   # Create new page"
+  echo ""
+  echo "If tenant doesn't exist in database yet:"
+  echo "  /pp-newtenant \"Tenant Name\"    # Create in database"
+  echo ""
 fi
+
+echo "═══════════════════════════════════════════"
 ```
 
-## Multiple Sessions
+## Summary
 
-Each Claude Code session can have its own portal-platform folder:
+This command:
+- ✅ Takes one argument: tenant slug
+- ✅ Auto-detects portal-platform location
+- ✅ Creates/updates tenant repo automatically
+- ✅ Saves session for other commands
+- ✅ Zero interactive prompts
+- ✅ Supports "platform" for platform-wide work
 
-**Session 1: Building your website**
-```
-~/portal-work/bs/
-```
-
-**Session 2: Working on FitZone client**
-```
-~/portal-work/fitzone-gym/
-```
-
-**Session 3: Debugging DKC portal**
-```
-~/portal-work/dkc/
+Usage:
+```bash
+/pp-setup ayup         # Work on AYUP
+/pp-setup bs           # Work on Beyond Spreadsheets  
+/pp-setup platform     # Platform-wide changes
 ```
 
-This prevents conflicts and keeps work organized!
-
-## Expected Output
-
-```
-What are you working on today?
-
-User: "my website"
-
-📦 Cloning portal-platform to ~/portal-work/bs
-Cloning into '~/portal-work/bs'...
-✅ Portal Platform cloned
-📦 Installing dependencies...
-added 324 packages in 12s
-✅ Environment configured
-✅ Portal Platform ready at: ~/portal-work/bs
-
-═══════════════════════════════════════════
-   PORTAL PLATFORM - SESSION SETUP
-═══════════════════════════════════════════
-
-✅ Portal Platform: ~/portal-work/bs
-✅ Scripts available: scripts/list-all-tenants.mjs
-✅ Other commands can now find this installation
-
-Next steps:
-- List tenants: /pp-list
-- Create tenant: /pp-tenant "Business Name"
-- Create page: /pp-page bs home
-
-Working directory: ~/portal-work/bs
-```
-
-## Notes
-
-- The path is stored in `~/.claude-portal-path` (session-specific)
-- Each Claude Code instance can have its own path
-- Other PP commands read this file to know where to work
-- You can manually change it: `echo "/path/to/portal" > ~/.claude-portal-path`
+All other `/pp-*` commands check this session and fail with clear message if not configured.
