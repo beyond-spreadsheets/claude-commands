@@ -144,6 +144,33 @@ Show all tenants in database
 - Runs script from portal-platform
 - Shows all tenants with IDs, slugs, domains
 
+#### `/pp-triage` - Triage All Tenant Issues
+Scan all tenant repositories and create prioritized work queue
+
+**Usage:** `/pp-triage` or `/pp-triage drc` or `/pp-triage --priority`
+
+**What it does:**
+- Discovers all tenant repositories
+- Fetches open issues from GitHub for each tenant
+- Categorizes by priority (HIGH, MEDIUM, LOW)
+- Categorizes by type (Bug, Feature, Security, Docs)
+- Flags security issues 🚨
+- Shows tenant health summary
+- Suggests next actions
+- Exports reports (CSV + Markdown)
+
+**Output:**
+- Prioritized work queue ready for `/pp-issue`
+- Security alerts for immediate attention
+- Platform-wide issue detection
+- Per-tenant health status
+
+**Use this for:**
+- Monday morning planning
+- Sprint planning
+- Daily standups
+- Client reviews
+
 #### `/pp-issue <slug> <issue-number>` - Work on Tenant Issue
 Work on GitHub issue for a specific tenant with full workflow
 
