@@ -15,9 +15,38 @@ You are creating a NEW TENANT for the portal-platform multi-tenant SaaS.
 
 ## Command Format
 
-`/pp-tenant "<tenant-name>"`
+`/pp-newtenant "<tenant-name>"`
 
-Example: `/pp-tenant "FitZone Gym"`
+Example: `/pp-newtenant "FitZone Gym"`
+
+## Step 0: Verify Session Setup
+
+**CRITICAL: Check if /pp-setup has been run first!**
+
+```bash
+if [ ! -f ~/.claude-portal-session ]; then
+  echo "❌ ERROR: Portal Platform session not configured"
+  echo ""
+  echo "You must run /pp-setup first to configure your work session."
+  echo ""
+  echo "Run: /pp-setup"
+  echo ""
+  echo "This will:"
+  echo "  - Clone portal-platform repository"
+  echo "  - Create tenant repository structure"
+  echo "  - Configure session paths"
+  echo ""
+  exit 1
+fi
+
+# Load session variables
+source ~/.claude-portal-session
+
+echo "✅ Session configured"
+echo "   Portal Platform: $PORTAL_PLATFORM"
+echo "   Tenant Repo: $TENANT_REPO"
+echo ""
+```
 
 ## What This Command Does
 
