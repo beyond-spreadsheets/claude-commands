@@ -6,6 +6,9 @@ autoApprove:
   - Write
   - Bash(node scripts/*)
   - Bash(mkdir *)
+  - Bash(gh repo create*)
+  - Bash(git remote*)
+  - Bash(git push*)
 ---
 
 You are creating a NEW TENANT for the portal-platform multi-tenant SaaS.
@@ -460,6 +463,28 @@ git commit -m "docs: Document initial features and decisions"
 echo "✅ Documentation updated"
 ```
 
+## Step 4c: Create GitHub Repository
+
+Automatically create private GitHub repo for this tenant:
+
+```bash
+cd "$TENANT_REPO"
+
+echo "📦 Creating GitHub repository: beyond-spreadsheets/tenant-{SLUG}"
+
+# Create private repo
+if gh repo create beyond-spreadsheets/tenant-{SLUG} --private --source=. --remote=origin --push; then
+  echo "✅ GitHub repository created and pushed"
+  echo "   URL: https://github.com/beyond-spreadsheets/tenant-{SLUG}"
+else
+  echo "⚠️  Could not create GitHub repo (may already exist or permissions issue)"
+  echo "   You can create it manually:"
+  echo "   gh repo create beyond-spreadsheets/tenant-{SLUG} --private"
+  echo "   git remote add origin git@github.com:beyond-spreadsheets/tenant-{SLUG}.git"
+  echo "   git push -u origin main"
+fi
+```
+
 ## Step 5: Create Folder Structure
 
 Create the tenant's folder:
@@ -581,26 +606,25 @@ Tell the user:
   - Subdomain: https://SUBDOMAIN.yourdomain.com
   - Custom: https://CUSTOM_DOMAIN (if configured)
 
-📝 Next Steps:
-  1. Push tenant repo to GitHub:
-     cd ~/portal-work/tenants/SLUG
-     gh repo create beyond-spreadsheets/tenant-SLUG --private
-     git remote add origin git@github.com:beyond-spreadsheets/tenant-SLUG.git
-     git push -u origin main
+🐙 GitHub Repository:
+  ✅ Created: https://github.com/beyond-spreadsheets/tenant-SLUG
+  ✅ Pushed all commits
+  ✅ Private repository
 
-  2. Test locally: Update /etc/hosts
+📝 Next Steps:
+  1. Test locally: Update /etc/hosts
      127.0.0.1 SUBDOMAIN.localhost
 
-  3. Create pages:
+  2. Create pages:
      /pp-page SLUG home
      /pp-page SLUG about
      /pp-page SLUG contact
 
-  4. Deploy to Vercel:
+  3. Deploy to Vercel:
      - Add domain: SUBDOMAIN.yourdomain.com
      - Configure DNS (if custom domain)
 
-  5. Create admin user (have client sign up)
+  4. Create admin user (have client sign up)
 
 🎯 Ready to build pages!
 

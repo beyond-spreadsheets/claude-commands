@@ -91,6 +91,13 @@ Show complete help guide for multi-tenant SaaS commands
 
 **Usage:** `/pp-help`
 
+**What it does:**
+- Displays central help file with all command references
+- Shows command purposes and scopes
+- Lists common mistakes and proper redirects
+- Provides workflow examples
+- Explains when to use each command
+
 #### `/pp-tenant "<name>"` - Create New Tenant
 Create a new tenant/client with database setup and folder structure
 
