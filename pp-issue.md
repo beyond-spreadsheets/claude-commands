@@ -31,7 +31,7 @@ You are working on a GitHub issue for a specific tenant in the portal-platform m
 
 Examples:
 - `/pp-issue fitzone 42` → Work on issue #42 in beyond-spreadsheets/tenant-fitzone
-- `/pp-issue beyond-spreadsheets 15` → Work on issue #15 in beyond-spreadsheets/tenant-beyond-spreadsheets
+- `/pp-issue bs 15` → Work on issue #15 in beyond-spreadsheets/tenant-bs
 
 ## What This Does
 

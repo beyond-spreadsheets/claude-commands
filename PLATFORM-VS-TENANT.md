@@ -85,7 +85,7 @@ START: You need to make a change
 **Impact:**
 ```
 ⚠️  Changes deploy to ALL {TOTAL_COUNT} tenants:
-- beyond-spreadsheets
+- bs
 - fitzone-gym
 - dkc
 - warriors-martial-arts

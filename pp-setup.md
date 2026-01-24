@@ -21,7 +21,7 @@ Pulls the portal-platform repo to a unique folder for this work session, allowin
 Ask the user: "What are you working on today?"
 
 Examples:
-- "my own website" → folder: `~/portal-work/beyond-spreadsheets`
+- "my own website" → folder: `~/portal-work/bs`
 - "FitZone Gym client" → folder: `~/portal-work/fitzone-gym`
 - "DKC volunteer portal" → folder: `~/portal-work/dkc`
 - "testing" → folder: `~/portal-work/test-{timestamp}`
@@ -325,7 +325,7 @@ Each Claude Code session can have its own portal-platform folder:
 
 **Session 1: Building your website**
 ```
-~/portal-work/beyond-spreadsheets/
+~/portal-work/bs/
 ```
 
 **Session 2: Working on FitZone client**
@@ -347,28 +347,28 @@ What are you working on today?
 
 User: "my website"
 
-📦 Cloning portal-platform to ~/portal-work/beyond-spreadsheets
-Cloning into '~/portal-work/beyond-spreadsheets'...
+📦 Cloning portal-platform to ~/portal-work/bs
+Cloning into '~/portal-work/bs'...
 ✅ Portal Platform cloned
 📦 Installing dependencies...
 added 324 packages in 12s
 ✅ Environment configured
-✅ Portal Platform ready at: ~/portal-work/beyond-spreadsheets
+✅ Portal Platform ready at: ~/portal-work/bs
 
 ═══════════════════════════════════════════
    PORTAL PLATFORM - SESSION SETUP
 ═══════════════════════════════════════════
 
-✅ Portal Platform: ~/portal-work/beyond-spreadsheets
+✅ Portal Platform: ~/portal-work/bs
 ✅ Scripts available: scripts/list-all-tenants.mjs
 ✅ Other commands can now find this installation
 
 Next steps:
 - List tenants: /pp-list
 - Create tenant: /pp-tenant "Business Name"
-- Create page: /pp-page beyond-spreadsheets home
+- Create page: /pp-page bs home
 
-Working directory: ~/portal-work/beyond-spreadsheets
+Working directory: ~/portal-work/bs
 ```
 
 ## Notes

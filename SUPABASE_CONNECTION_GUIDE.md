@@ -100,7 +100,7 @@ node scripts/query-tenants.js
 const { data, error } = await supabase
   .from('tenants')
   .select('*')
-  .eq('slug', 'beyond-spreadsheets')
+  .eq('slug', 'bs')
   .single()
 ```
 
@@ -206,7 +206,7 @@ ORDER BY t.created_at DESC;
 ```sql
 SELECT *
 FROM portal.tenants
-WHERE custom_domain = 'beyond-spreadsheets.co.uk';
+WHERE custom_domain = 'bs.co.uk';
 ```
 
 #### C. Update Tenant
@@ -225,7 +225,7 @@ SELECT
   ff.enabled
 FROM portal.feature_flags ff
 JOIN portal.tenants t ON ff.tenant_id = t.id
-WHERE t.slug = 'beyond-spreadsheets';
+WHERE t.slug = 'bs';
 ```
 
 ---
@@ -407,7 +407,7 @@ Output:
 ✅ Tenant Found:
    ID: 6663144e-dd12-4fbd-9a79-6a4e365437d7
    Name: Beyond Spreadsheets
-   Domain: beyond-spreadsheets.co.uk
+   Domain: bs.co.uk
 ```
 
 ### 2. Fix tenant subdomain issue:

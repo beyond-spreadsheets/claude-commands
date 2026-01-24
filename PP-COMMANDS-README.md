@@ -31,11 +31,11 @@ Commands are installed in: `~/.claude/commands/pp*.md`
 
 **Step 2: Create your pages**
 ```bash
-/pp-page beyond-spreadsheets home
-/pp-page beyond-spreadsheets about
-/pp-page beyond-spreadsheets pricing
-/pp-page beyond-spreadsheets contact
-/pp-page beyond-spreadsheets blog
+/pp-page bs home
+/pp-page bs about
+/pp-page bs pricing
+/pp-page bs contact
+/pp-page bs blog
 ```
 
 **Step 3: Create shared components**
@@ -48,13 +48,13 @@ Commands are installed in: `~/.claude/commands/pp*.md`
 **Step 4: Test locally**
 ```bash
 # Edit /etc/hosts:
-127.0.0.1 beyond-spreadsheets.localhost
+127.0.0.1 bs.localhost
 
 # Run dev server:
 npm run dev
 
 # Visit:
-http://beyond-spreadsheets.localhost:3000
+http://bs.localhost:3000
 ```
 
 **Step 5: Deploy**
@@ -107,7 +107,7 @@ portal-platform/
 │
 └── app/
     ├── (tenants)/                 # UNIQUE per tenant
-    │   ├── beyond-spreadsheets/  # Your website
+    │   ├── bs/  # Your website
     │   │   ├── layout.tsx        # Your design system
     │   │   ├── page.tsx          # Home
     │   │   ├── about/page.tsx
@@ -153,8 +153,8 @@ portal-platform/
 ### Use Case 1: Your Own Website
 ```bash
 /pp-tenant "Beyond Spreadsheets"
-/pp-page beyond-spreadsheets home
-/pp-page beyond-spreadsheets about
+/pp-page bs home
+/pp-page bs about
 # ... 20 pages total
 ```
 
@@ -229,8 +229,8 @@ portal-platform/
 **Morning: Build your site**
 ```bash
 /pp-tenant "Beyond Spreadsheets"
-/pp-page beyond-spreadsheets home
-/pp-page beyond-spreadsheets pricing
+/pp-page bs home
+/pp-page bs pricing
 /pp-component PricingCard
 ```
 

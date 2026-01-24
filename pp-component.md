@@ -49,7 +49,7 @@ Examples:
 
 For content components, create them inside tenant pages instead:
 - `/pp-page fitzone-gym home` (then add hero in that page)
-- `/pp-page beyond-spreadsheets pricing` (then add pricing table)
+- `/pp-page bs pricing` (then add pricing table)
 
 ## What This Creates
 
@@ -540,7 +540,7 @@ Tell the user:
 
 🔄 Reuse:
   This component can now be used in ANY tenant page:
-  - beyond-spreadsheets
+  - bs
   - dkc
   - ayup
   - fitzone-gym

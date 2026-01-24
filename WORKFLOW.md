@@ -8,7 +8,7 @@ This guide shows the complete workflow for managing multi-tenant SaaS with Git-b
 ~/portal-work/
 ├── portal-platform/           # Shared codebase (all tenants)
 └── tenants/
-    ├── beyond-spreadsheets/   # Your website config
+    ├── bs/   # Your website config
     │   ├── migrations/        # SQL migrations
     │   ├── docs/             # Decision logs
     │   ├── config/           # tenant.json
@@ -223,7 +223,7 @@ git push -u origin main
 ```
 ~/portal-work/portal-platform/
 ├── app/(tenants)/
-│   ├── beyond-spreadsheets/  # Your website
+│   ├── bs/  # Your website
 │   ├── fitzone-gym/          # Client A
 │   └── dkc/                  # Client B
 ├── components/shared/        # Shared components
@@ -233,7 +233,7 @@ git push -u origin main
 **Tenant configs:**
 ```
 ~/portal-work/tenants/
-├── beyond-spreadsheets/
+├── bs/
 │   ├── migrations/
 │   ├── docs/
 │   ├── config/

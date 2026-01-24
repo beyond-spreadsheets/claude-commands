@@ -45,9 +45,9 @@ Show the output to the user. That's it!
 📋 Found 4 tenant(s)
 
 1. Beyond Spreadsheets
-   Slug: beyond-spreadsheets
-   Subdomain: https://beyond-spreadsheets.yourdomain.com
-   Custom Domain: https://beyond-spreadsheets.co.uk
+   Slug: bs
+   Subdomain: https://bs.yourdomain.com
+   Custom Domain: https://bs.co.uk
    Tenant ID: b2ea9ee0-eedd-4eb6-8fa3-18b64ab79edf
 
 2. AYUP

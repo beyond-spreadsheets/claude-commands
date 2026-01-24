@@ -27,7 +27,7 @@ Changes go to: app/(tenants)/{slug}/{page-name}/
 `/pp-page <tenant-slug> <page-name>`
 
 Examples:
-- `/pp-page beyond-spreadsheets home`
+- `/pp-page bs home`
 - `/pp-page dkc volunteer-application`
 - `/pp-page fitzone-gym class-schedule`
 
@@ -401,7 +401,7 @@ Tell the user:
 
 **Homepage:**
 ```
-/pp-page beyond-spreadsheets home
+/pp-page bs home
 ```
 
 **About Page:**
