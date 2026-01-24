@@ -51,6 +51,29 @@ Show current session context and critical rules
 - Need a quick reminder of the rules
 - Session context seems lost
 
+#### `/pp-diag` - Diagnose Issues
+Run comprehensive diagnostics on portal platform setup
+
+**Usage:** `/pp-diag` or `/pp-diag session` or `/pp-diag tenant drc`
+
+**What it checks:**
+- Session configuration
+- Portal platform repository
+- Tenant repository structure
+- Tenant folder in platform
+- File extensions (.tsx vs .ts)
+- Missing tenant_id filters (security!)
+- Files in wrong locations
+- Git status and uncommitted changes
+- Environment variables
+
+**Use this when:**
+- Setup isn't working
+- Pages not rendering
+- Unclear why something failed
+- Want to validate everything is correct
+- Checking for security issues (missing filters)
+
 #### `/pp-setup` - Setup Work Session
 Setup portal-platform and tenant repo for this work session
 
